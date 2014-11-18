@@ -231,7 +231,7 @@ abstract class Provider {
 			break;
 
 			case 'refresh_token':
-				return Token::factory('refresh', $return);
+				return Token::factory('access', $return);
 			break;
 		}
 
