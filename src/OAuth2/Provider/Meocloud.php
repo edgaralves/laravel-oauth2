@@ -55,6 +55,11 @@ class Meocloud extends Provider {
 		return 'https://api-content.meocloud.pt';
 	}
 
+	public function url_public_api_endpoint()
+	{
+		return 'https://publicapi.meocloud.pt';
+	}
+
 	public function get_token($config)
 	{
 		// TODO Validation of expires date
@@ -73,6 +78,9 @@ class Meocloud extends Provider {
 			throw new \Exception("Ficheiro enviado não existe");
 		}
 
+		// Change space to %20
+		$fileName = str_replace(" ", "%20", $fileName);
+
         $requestEndpoint = $this->url_api_endpoint() . "/1/Files/meocloud/{$fileName}?".http_build_query(array(
 			'access_token' => $token->access_token,
 			'overwrite'	=> 'false'
@@ -88,6 +96,29 @@ class Meocloud extends Provider {
 		$context = stream_context_create($opts);
 		$response = file_get_contents($requestEndpoint, false, $context);
 
+		$return = json_decode($response, true);
+
+        return $return;
+	}
+
+	public function share_file(Token_Access $token, $fileName)
+	{
+		// Change space to %20
+		$fileName = str_replace(" ", "%20", ltrim($fileName, '/'));
+
+        $requestEndpoint = $this->url_api_endpoint() . "/1/Shares/meocloud/{$fileName}?".http_build_query(array(
+			'access_token' => $token->access_token
+		));
+
+		$opts = array(
+			'http' => array(
+				'method'  => 'POST',
+				//'header'  => 'Content-type: application/x-www-form-urlencoded',
+				//'content' => file_get_contents($uploadedFilePath)
+			)
+		);
+		$context = stream_context_create($opts);
+		$response = file_get_contents($requestEndpoint, false, $context);
 		$return = json_decode($response, true);
 
         return $return;
